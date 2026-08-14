@@ -1,0 +1,39 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+langchain==0.3.1
+langchain-community==0.3.1
+langchain-ollama==0.2.0
+langchain-chroma==0.1.4
+chromadb>=0.4.0,<0.6.0,!=0.5.4,!=0.5.5
+pydantic==2.9.2
+faker==28.4.1
+pypdf==5.0.1
+rank_bm25==0.2.2
+python-docx==1.2.0
+beautifulsoup4==4.15.0
+python-multipart==0.0.32
+
+# --- Local NLP stack (see backend/nlp_local.py) -------------------------------
+# All of this runs in-process on this machine. No API keys, no hosted NLP.
+#
+# spaCy: tokenization, sentence segmentation, NER, noun phrases, numbers/units.
+spacy==3.8.15
+# The English pipeline spaCy actually runs. Installed separately because it is
+# published as a GitHub release asset, not on PyPI:
+#     python -m spacy download en_core_web_sm
+#
+# RapidFuzz: typo/fuzzy matching against the entity dictionary. ~10-50x faster
+# than difflib and better at partial-token matches ("koenigsseg" -> Koenigsegg).
+rapidfuzz==3.14.5
+# fastembed: runs the sentence-transformer (all-MiniLM-L6-v2) used for semantic
+# intent, and the cross-encoder (ms-marco-MiniLM-L-6-v2) used to rerank
+# retrieval. Deliberately fastembed rather than sentence-transformers directly:
+# it executes the same ONNX weights on onnxruntime, which chromadb already
+# depends on, so the stack stays local WITHOUT installing ~2GB of torch to run
+# two 22M-parameter models. Weights are downloaded once and cached under
+# ~/.cache/huggingface.
+fastembed==0.8.0
+# fastembed's own resolver will pull numpy 2.x, which langchain 0.3.1 forbids.
+# Pinned here so a fresh `pip install -r requirements.txt` lands on a working
+# combination instead of a broken one.
+numpy<2.0.0
